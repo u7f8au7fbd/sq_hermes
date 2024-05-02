@@ -13,6 +13,8 @@ reqwest = { version = "*", features = ["blocking"] }
 tokio = { version = "*", features = ["full"] }
 #現在時刻の取得
 chrono = "*"
+#TUI
+ratatui = "*"
 
 [profile.dev]
 opt-level = 1
