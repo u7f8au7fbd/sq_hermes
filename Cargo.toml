@@ -9,12 +9,14 @@ serde = { version = "*", features = ["derive"] }
 serde_json = { version = "*" }
 #HTTPクライアント
 reqwest = { version = "*", features = ["blocking"] }
+scraper = "*"
 #非同期処理
 tokio = { version = "*", features = ["full"] }
 #現在時刻の取得
 chrono = "*"
 #TUI
 ratatui = "*"
+crossterm = "*"
 
 [profile.dev]
 opt-level = 1
