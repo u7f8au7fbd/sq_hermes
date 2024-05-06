@@ -1,3 +1,3 @@
-pub fn sub(){
+pub fn sub() {
 
 }

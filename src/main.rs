@@ -1,5 +1,6 @@
 #[macro_use]
 mod macros;
+mod config;
 mod html;
 mod json;
 mod tui;
@@ -13,5 +14,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     html::sub();
     json::sub();
     tui::sub();
+
+    config::write();
+    config::read();
     Ok(())
 }
