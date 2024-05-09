@@ -30,7 +30,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     read_cofig(config.clone());
     config::load(&mut config);
     read_cofig(config);
+    
     //tui::sub()?;
+
     html::sub();
     json::sub();
     Ok(())
