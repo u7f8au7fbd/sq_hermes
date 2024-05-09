@@ -16,13 +16,16 @@ pub struct Config {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    cmd!(utf - 8);
-    cmd!(line);
+    cmd!(clear); //ターミナルのクリア
+    cmd!(utf - 8); //文字コードの設定
+    cmd!(line); //境界線
+
     let mut config: Vec<Config> = vec![Config {
         api_key: "NULL".to_string(),
         search_engine_id: "NULL".to_string(),
         world: core::array::from_fn(|_| "NULL".to_string()),
     }];
+
     read_cofig(config.clone());
     config::load(&mut config);
     read_cofig(config);
