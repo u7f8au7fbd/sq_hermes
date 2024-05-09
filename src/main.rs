@@ -1,5 +1,6 @@
 #[macro_use]
-mod macros;
+mod macros;//マクロ
+
 mod config;
 mod html;
 mod json;
