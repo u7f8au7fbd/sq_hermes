@@ -1,43 +1,95 @@
-#[macro_use]
-mod macros;//マクロ
-
-mod config;
-mod html;
-mod json;
-mod tui;
-
-use serde::{Deserialize, Serialize};
-use std::process::Command;
-#[derive(Debug, Deserialize, Serialize, Clone)] // Add this line
-pub struct Config {
-    api_key: String,
-    search_engine_id: String,
-    world: [String; 10],
+#[derive(Debug, serde::Serialize)]
+pub struct QueryData {
+    main: String,
+    sub: Vec<String>,
 }
 
+#[macro_use]
+mod macros;
+
+mod google;
+mod json;
+
+use tokio::time;
+
+fn setup() {
+    cmd!(clear); // clearコマンドを実行する
+    cmd!(utf8); // utf-8コマンドを実行する
+    cmd!(red_line); // lineコマンドを実行する
+}
+
+fn get_now_time() -> String {
+    let now = chrono::Local::now();
+    now.format("%Y-%m-%d_%H-%M-%S").to_string()
+}
+
+use rand::Rng;
+use std::sync::Arc;
+use tokio::task;
+
+async fn process_in_chunks(num_str: Vec<String>, path: Arc<str>, chunk_size: usize) {
+    let num_str_with_index: Vec<(usize, String)> = num_str.into_iter().enumerate().collect();
+    for chunk in num_str_with_index.chunks(chunk_size) {
+        let mut handles = Vec::new();
+
+        for (index, num) in chunk {
+            let num = num.clone(); // この部分のcloneはやむを得ない
+            let index = *index; // インデックスをコピー
+            let path = Arc::clone(&path);
+
+            let handle = task::spawn(async move {
+                google::download_html(&num, &format!("{}/{}.html", &path, index))
+                    .await
+                    .unwrap();
+            });
+
+            handles.push(handle);
+        }
+
+        for handle in handles {
+            handle.await.unwrap();
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    cmd!(clear); //ターミナルのクリア
-    cmd!(utf - 8); //文字コードの設定
-    cmd!(line); //境界線
+    setup();
+    let path = "./sample.json";
+    let data_list = json::read_and_print_json(path)?;
+    println!("{:#?}", data_list);
 
-    let mut config: Vec<Config> = vec![Config {
-        api_key: "NULL".to_string(),
-        search_engine_id: "NULL".to_string(),
-        world: core::array::from_fn(|_| "NULL".to_string()),
-    }];
+    // Create a directory
+    let dir = format!("./db/{}", get_now_time());
+    println!("{}: Finished", get_now_time());
+    std::fs::create_dir_all(&dir)?;
 
-    read_cofig(config.clone());
-    config::load(&mut config);
-    read_cofig(config);
-    
-    //tui::sub()?;
+    for data in &data_list {
+        println!("{}", data.main);
+        std::fs::create_dir_all(format!("{}/{}", &dir, data.main))?;
+        for sub in &data.sub {
+            let wait_time = rand::thread_rng().gen_range(40..80);
+            println!("Wait:{}", wait_time);
+            tokio::time::sleep(time::Duration::from_secs(wait_time)).await;
 
-    html::sub();
-    json::sub();
+            println!("{}", sub);
+            std::fs::create_dir_all(format!("{}/{}/{}", &dir, data.main, sub))?;
+            let word = google::get_query(sub).await?;
+            let chunk_size = 100;
+            // `Vec<String>`を渡して所有権の問題を回避します。
+            process_in_chunks(
+                word,
+                format!("{}/{}/{}", &dir, data.main, sub).into(),
+                chunk_size,
+            )
+            .await;
+        }
+    }
+
+    // Serialize data_list to JSON
+    let json_str = serde_json::to_string_pretty(&data_list)?;
+    // Write JSON to output file
+    std::fs::write(format!("{}/log.json", &dir), json_str)?;
     Ok(())
-}
-
-fn read_cofig(config: Vec<Config>) {
-    println!("{:#?}", config)
 }

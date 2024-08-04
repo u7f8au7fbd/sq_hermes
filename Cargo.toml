@@ -4,19 +4,23 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+tokio = { version = "*", features = ["full"] }
 #シリアライズ/デシリアライズ
 serde = { version = "*", features = ["derive"] }
-serde_json = { version = "*" ,futures=["derive"] }
-#HTTPクライアント
-reqwest = { version = "*", features = ["blocking"] }
-scraper = "*"
-#非同期処理
-tokio = { version = "*", features = ["full"] }
-#現在時刻の取得
-chrono = "*"
-#TUI
-ratatui = "*"
-crossterm = "*"
+serde_json = { version = "*" }
+sonic-rs = { version = "*" }
+#スクレイピング
+select = { version = "*" }
+reqwest = { version = "*", features = ["cookies", "blocking", "http2", "json"] }
+scraper = { version = "*" }
+#GUI
+ratatui = { version = "*" }
+#その他
+chrono = { version = "*" }
+rand = "*"
+#形態素解析・自然言語処理・トークン化
+lindera = { version = "*", features = ["ipadic", "filter"] }
+
 
 [profile.dev]
 opt-level = 1
