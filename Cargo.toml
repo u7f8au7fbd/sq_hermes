@@ -14,7 +14,8 @@ select = { version = "*" }
 reqwest = { version = "*", features = ["cookies", "blocking", "http2", "json"] }
 scraper = { version = "*" }
 #GUI
-ratatui = { version = "*" }
+ratatui={version = "*"}
+crossterm={version = "*"}
 #その他
 chrono = { version = "*" }
 rand = "*"
