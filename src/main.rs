@@ -10,8 +10,6 @@ mod macros;
 mod google;
 mod json;
 
-use tokio::time;
-
 fn setup() {
     cmd!(clear); // clearコマンドを実行する
     cmd!(utf8); // utf-8コマンドを実行する
@@ -71,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         for sub in &data.sub {
             let wait_time = rand::thread_rng().gen_range(40..80);
             println!("Wait:{}", wait_time);
-            tokio::time::sleep(time::Duration::from_secs(wait_time)).await;
+            tokio::time::sleep(tokio::time::Duration::from_secs(wait_time)).await;
 
             println!("{}", sub);
             std::fs::create_dir_all(format!("{}/{}/{}", &dir, data.main, sub))?;
